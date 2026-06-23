@@ -6,6 +6,27 @@ on:
 jobs:
   run-script:
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        area:
+          - name: "Lehrbuchsammlung EG und 1. OG"
+            resource_url_path: "/resources/1-lehrbuchsammlung-eg-und-1-og/children"
+            service_id: "449"
+
+          - name: "Lesesaal Naturwissenschaften Empore"
+            resource_url_path: "/resources/2-lesesaal-naturwissenschaften-2-og-und-empore-kopie-nnlimpvbvg/children"
+            service_id: "2944"
+
+          - name: "Lesesaal Naturwissenschaften"
+            resource_url_path: "/resources/2-lesesaal-naturwissenschaften-2-og-und-empore/children"
+            service_id: "452"
+
+          - name: "Lesesaal Medienzentrum"
+            resource_url_path: "/resources/lesesaal-medienzentrum-vk0dz5dkh9/children"
+            service_id: "455"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -25,10 +46,13 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
           TIMEZONE: ${{ secrets.TIMEZONE }}
           SSO_PROVIDER: ${{ secrets.SSO_PROVIDER }}
-          RESOURCE_URL_PATH: ${{ secrets.RESOURCE_URL_PATH }}
-          SERVICE_ID: ${{ secrets.SERVICE_ID }}
-          RESOURCE_IDS: ${{ secrets.RESOURCE_IDS }}
-          USE_ANY_RESOURCE_ID: ${{ secrets.USE_ANY_RESOURCE_ID }}
+
+          RESOURCE_URL_PATH: ${{ matrix.area.resource_url_path }}
+          SERVICE_ID: ${{ matrix.area.service_id }}
+
+          RESOURCE_IDS: ""
+          USE_ANY_RESOURCE_ID: "True"
           BOOKING_TIMES: ${{ secrets.BOOKING_TIMES }}
         run: |
+          echo "Trying area: ${{ matrix.area.name }}"
           python main.py
