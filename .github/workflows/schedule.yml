@@ -23,7 +23,6 @@ jobs:
             resource_url_path: "/resources/2-lesesaal-naturwissenschaften-2-og-und-empore/children"
             service_id: "452"
 
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -52,4 +51,21 @@ jobs:
           BOOKING_TIMES: ${{ secrets.BOOKING_TIMES }}
         run: |
           echo "Trying area: ${{ matrix.area.name }}"
-          python main.py
+
+          for i in {1..20}; do
+            echo "Attempt $i/20"
+            OUTPUT=$(python main.py 2>&1)
+            echo "$OUTPUT"
+
+            if echo "$OUTPUT" | grep -Ei "successfully booked|booking successful|booked successfully|successfully reserved|reservation successful"; then
+              echo "Booking succeeded, stopping retries."
+              exit 0
+            fi
+
+            if [ "$i" -lt 20 ]; then
+              echo "No booking yet. Waiting 2 seconds before retry..."
+              sleep 2
+            fi
+          done
+
+          echo "No booking succeeded after all retries."
